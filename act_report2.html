@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Act Report Webpage</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <input type="checkbox" id="toggle">
+    <label for="toggle" id="toggle-btn">☰</label>
+    <div id="sidebar">
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#questions">Questions</a></li>
+            <li><a href="#analysis">Analysis</a></li>
+            <li><a href="#summary">Summary</a></li>
+        </ul>
+        <a href="wrangle_report.html" id="external">Wrangle Report</a>
+    </div>
+    <header>
+        <h1>We Rate Dogs Analysis</h1>
+    </header>
+
+    <article>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>This report presents an analysis of the <strong><i>We Rate Dogs</i></strong> tweets dataset. The analysis aims to uncover insights about user engagement, such as how retweets and likes relate to tweet ratings, how ratings change over time, and the popularity of various nicknames used in the tweets.</p>
+        </section>
+
+        <section id="questions">
+            <h2>Questions</h2>
+            <ol>
+                <li>How much do people retweet and like vs. the rating?</li>
+                <li>How does time affect the likes?</li>
+                <li>What is the most famous nickname?</li>
+            </ol>
+        </section>
+
+        <section id="analysis">
+            <h2>Analysis</h2>
+
+            <h3>1. Retweets and Likes vs. Rating Percentage</h3>
+            <p>Our scatter plot analysis reveals a notable correlation between the number of favorites (likes) and retweets with the rating percentage of tweets. The visual data suggests that tweets with higher ratings tend to receive more engagement in the form of likes and retweets. This relationship highlights the impact of rating on user interaction, indicating that well-rated tweets are likely to be more popular and shared.</p>
+            <pre><img src="./assets/scatter_plot.png" alt="Retweets and Favorites vs. Rating Percentage" /></pre>
+
+            <h3>2. Effect of Time on Likes</h3>
+            <p>The line plot examining the average rating over time provides insight into how the popularity of tweets evolves. The data shows trends in how ratings fluctuate, which may reflect seasonal or contextual influences on user engagement. Understanding these trends helps in assessing whether certain periods lead to higher engagement and allows for strategic planning to maximize visibility during peak times.</p>
+            <pre><img src="./assets/time_vs_rating.png" alt="Average Rating Over Time" /></pre>
+
+            <h3>3. Most Famous Nickname</h3>
+            <p>The bar chart analysis of nicknames used in tweets reveals that 'Pupper' is the most frequently used nickname among the dataset. Despite 'Floofer' being another popular option, it appears less common compared to 'Pupper'. This data provides insights into user preferences and trends in the types of nicknames that resonate more with the Twitter audience.</p>
+            <pre><img src="./assets/frequency.png" alt="Frequency of Each Nickname" /></pre>
+        </section>
+
+        <section id="summary">
+            <h2>Summary</h2>
+            <p>Overall, the analysis provides a comprehensive view of user engagement with tweets in the dataset. The correlation between ratings and interactions (likes and retweets) emphasizes the importance of tweet quality. The time-based analysis offers a perspective on engagement trends, and the nickname frequency data highlights user preferences. These insights can guide strategies for improving tweet engagement and understanding audience preferences better.</p>
+        </section>
+    </article>
+</body>
+</html>
