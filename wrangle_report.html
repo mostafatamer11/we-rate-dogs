@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Webpage</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <input type="checkbox" id="toggle">
+    <label for="toggle" id="toggle-btn">☰</label>
+    <div id="sidebar">
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#gathering">Gathering</a></li>
+            <li><a href="#assessing">Assessing</a></li>
+            <li><a href="#cleaning">Cleaning</a></li>
+            <li><a href="#storing">Storing</a></li>
+            <li><a href="#analysis">Analysis</a></li>
+        </ul>
+        <a href="act_report.html" id="external">Act report</a>
+    </div>
+    <header>
+        <h1>We Rate Dogs Wrangling</h1>
+    </header>
+
+    <article>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                This is my report for wrangling the <strong><i>We rate dogs</i></strong> tweets dataset.<br>
+                I made sure to have a high quality data, So I cleaned on two iterations
+            </p>
+        </section>
+
+        <section id="gathering">
+            <h2>Gathering</h2>
+            <p>
+                I gathered data from various sources.<br>
+                I had to gather:
+                <ul>
+                    <li><code>image_predictions.tsv</code></li>
+                    <li><code>itwitter_archive_enhanced.csv</code></li>
+                    <li><code>tweet_json.txt</code> <i>which I saved as</i> <code>tweet_json.json</code> for ease of production</li>
+                </ul>
+                I had to download manually and programaticlly using my custom <code>download(url, file_name)</code> function
+                <ol>
+                    <li>Downloading the <code>image_predictions.tsv</code> file using my <code>download(url, file_name)</code> function</li>
+                    <li>Downloading the <code>twitter_archive_enhanced.csv</code> file manually</li>
+                    <li>Downloading the <code>tweet_json.json</code> file programanually since <code>twitter</code> became <code>X</code></li>
+                </ol>
+                After I downloaded the data into the data directory, It's time to load them into data-frames
+                I used my read_data function
+                <pre><code>
+EXTENSIONS = {
+    "t": lambda file: pd.read_csv(file, sep="\t"),
+    "c": lambda file: pd.read_csv(file, sep=","),
+    "s": lambda file: pd.read_csv(file, sep=" "),
+    "j": lambda file: pd.read_json(file, lines=True), # This is a json file
+}
+
+def read_data(files: Union[Iterable[str], str]):
+    if isinstance(files, str):
+        files = [files]
+
+    supported_files = (
+        file for file in files
+        if file.split(".")[-1][0] in EXTENSIONS
+    )
+
+    data_frames = [
+        EXTENSIONS[file.split(".")[-1][0]](file)
+        for file in supported_files
+    ]
+
+    unsupported_files = (
+        file for file in files
+        if file.split(".")[-1][0] not in EXTENSIONS
+    )
+
+    for file in unsupported_files:
+        print(f"Unsupported file extension: {file.split('.')[-1]}", flush=True)
+
+    return data_frames
+                </code></pre>
+                Then I loaded the data-frames into <code>predictions_df, tweet_json_df, twitter_enhanced_df = data</code>
+            </p>
+        </section>
+
+        <section id="assessing">
+            <h2>Assessing</h2>
+            <p>
+                After that, I assesed the data by using pandas data-frames methods such as <code>info</code><br>
+                <code>twitter_enhanced_df.info()</code>
+                <pre><code>
+                    <class 'pandas.core.frame.DataFrame'>
+    RangeIndex: 2356 entries, 0 to 2355
+    Data columns (total 17 columns):
+    #   Column                      Non-Null Count  Dtype  
+    ---  ------                      --------------  -----  
+    0   tweet_id                    2356 non-null   int64  
+    1   in_reply_to_status_id       78 non-null     float64
+    2   in_reply_to_user_id         78 non-null     float64
+    3   timestamp                   2356 non-null   object 
+    4   source                      2356 non-null   object 
+    5   text                        2356 non-null   object 
+    6   retweeted_status_id         181 non-null    float64
+    7   retweeted_status_user_id    181 non-null    float64
+    8   retweeted_status_timestamp  181 non-null    object 
+    9   expanded_urls               2297 non-null   object 
+    10  rating_numerator            2356 non-null   int64  
+    11  rating_denominator          2356 non-null   int64  
+    12  name                        1611 non-null   object 
+    13  doggo                       97 non-null     object 
+    14  floofer                     10 non-null     object 
+    15  pupper                      257 non-null    object 
+    16  puppo                       30 non-null     object 
+    dtypes: float64(4), int64(3), object(10)
+    memory usage: 313.0+ KB
+                </pre></code>
+                <code>twitter_enhanced_df</code>
+                <pre><code>
+                <div>
+                    <style scoped>
+                        .dataframe tbody tr th:only-of-type {
+                            vertical-align: middle;
+                        }
+                    
+                        .dataframe tbody tr th {
+                            vertical-align: top;
+                        }
+                    
+                        .dataframe thead th {
+                            text-align: right;
+                        }
+                    </style>
+                    <table border="1" class="dataframe">
+                      <thead>
+                        <tr style="text-align: right;">
+                          <th></th>
+                          <th>tweet_id</th>
+                          <th>in_reply_to_status_id</th>
+                          <th>in_reply_to_user_id</th>
+                          <th>timestamp</th>
+                          <th>source</th>
+                          <th>text</th>
+                          <th>retweeted_status_id</th>
+                          <th>retweeted_status_user_id</th>
+                          <th>retweeted_status_timestamp</th>
+                          <th>expanded_urls</th>
+                          <th>rating_numerator</th>
+                          <th>rating_denominator</th>
+                          <th>name</th>
+                          <th>doggo</th>
+                          <th>floofer</th>
+                          <th>pupper</th>
+                          <th>puppo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>0</th>
+                          <td>892420643555336193</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2017-08-01 16:23:56 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is Phineas. He's a mystical boy. Only eve...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/892420643...</td>
+                          <td>13</td>
+                          <td>10</td>
+                          <td>Phineas</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>1</th>
+                          <td>892177421306343426</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2017-08-01 00:17:27 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is Tilly. She's just checking pup on you....</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/892177421...</td>
+                          <td>13</td>
+                          <td>10</td>
+                          <td>Tilly</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>2</th>
+                          <td>891815181378084864</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2017-07-31 00:18:03 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is Archie. He is a rare Norwegian Pouncin...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/891815181...</td>
+                          <td>12</td>
+                          <td>10</td>
+                          <td>Archie</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>3</th>
+                          <td>891689557279858688</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2017-07-30 15:58:51 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is Darla. She commenced a snooze mid meal...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/891689557...</td>
+                          <td>13</td>
+                          <td>10</td>
+                          <td>Darla</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>4</th>
+                          <td>891327558926688256</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2017-07-29 16:00:24 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is Franklin. He would like you to stop ca...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/891327558...</td>
+                          <td>12</td>
+                          <td>10</td>
+                          <td>Franklin</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>...</th>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                        </tr>
+                        <tr>
+                          <th>2351</th>
+                          <td>666049248165822465</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2015-11-16 00:24:50 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>Here we have a 1949 1st generation vulpix. Enj...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/666049248...</td>
+                          <td>5</td>
+                          <td>10</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>2352</th>
+                          <td>666044226329800704</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2015-11-16 00:04:52 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is a purebred Piers Morgan. Loves to Netf...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/666044226...</td>
+                          <td>6</td>
+                          <td>10</td>
+                          <td>a</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>2353</th>
+                          <td>666033412701032449</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2015-11-15 23:21:54 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>Here is a very happy pup. Big fan of well-main...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/666033412...</td>
+                          <td>9</td>
+                          <td>10</td>
+                          <td>a</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>2354</th>
+                          <td>666029285002620928</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2015-11-15 23:05:30 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>This is a western brown Mitsubishi terrier. Up...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/666029285...</td>
+                          <td>7</td>
+                          <td>10</td>
+                          <td>a</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                        <tr>
+                          <th>2355</th>
+                          <td>666020888022790149</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>2015-11-15 22:32:08 +0000</td>
+                          <td>&lt;a href="http://twitter.com/download/iphone" r...</td>
+                          <td>Here we have a Japanese Irish Setter. Lost eye...</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>https://twitter.com/dog_rates/status/666020888...</td>
+                          <td>8</td>
+                          <td>10</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                          <td>NaN</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>2356 rows × 17 columns</p>
+                </div></code></pre>
+                <code>twitter_enhanced_df["rating_denominator"].unique()</code>
+                which is suprizingly not only 10
+                <pre>
+                    <code>
+array([ 10,   0,  15,  70,   7,  11, 150, 170,  20,  50,  90,  80,  40,
+       130, 110,  16, 120,   2])
+                    </code>
+                </pre>
+                so I get rid of the rows with unreal rating_denominator<br><br>
+                Then I had a look on the <code>tweet_json_df</code><br>
+
+                <code>tweet_json_df.info()</code>
+                <pre>
+                    <code>
+    <class 'pandas.core.frame.DataFrame'>
+    RangeIndex: 2354 entries, 0 to 2353
+    Data columns (total 31 columns):
+    #   Column                         Non-Null Count  Dtype              
+    ---  ------                         --------------  -----              
+    0   created_at                     2354 non-null   datetime64[ns, UTC]
+    1   id                             2354 non-null   int64              
+    2   id_str                         2354 non-null   int64              
+    3   full_text                      2354 non-null   object             
+    4   truncated                      2354 non-null   bool               
+    5   display_text_range             2354 non-null   object             
+    6   entities                       2354 non-null   object             
+    7   extended_entities              2073 non-null   object             
+    8   source                         2354 non-null   object             
+    9   in_reply_to_status_id          78 non-null     float64            
+    10  in_reply_to_status_id_str      78 non-null     float64            
+    11  in_reply_to_user_id            78 non-null     float64            
+    12  in_reply_to_user_id_str        78 non-null     float64            
+    13  in_reply_to_screen_name        78 non-null     object             
+    14  user                           2354 non-null   object             
+    15  geo                            0 non-null      float64            
+    16  coordinates                    0 non-null      float64            
+    17  place                          1 non-null      object             
+    18  contributors                   0 non-null      float64            
+    19  is_quote_status                2354 non-null   bool               
+    20  retweet_count                  2354 non-null   int64              
+    21  favorite_count                 2354 non-null   int64              
+    22  favorited                      2354 non-null   bool               
+    23  retweeted                      2354 non-null   bool               
+    24  possibly_sensitive             2211 non-null   float64            
+    25  possibly_sensitive_appealable  2211 non-null   float64            
+    26  lang                           2354 non-null   object             
+    27  retweeted_status               179 non-null    object             
+    28  quoted_status_id               29 non-null     float64            
+    29  quoted_status_id_str           29 non-null     float64            
+    30  quoted_status                  28 non-null     object             
+    dtypes: bool(4), datetime64[ns, UTC](1), float64(11), int64(4), object(11)
+    memory usage: 505.9+ KB
+
+                    </code>
+                </pre>
+
+                after I had a look on all data-frames I adressed some issues
+                <ul>
+                    <li>quality</li>
+                    <pre>
+                        <code>
+#### 1. `twitter_enhanced_df` table: names are sometimes `a` or `an` and that is due to the `This is a` text
+- replace `Nan` or `a` or `an` with `-` for ease
+
+#### 2. `twitter_enhanced_df` table: `timestamp` and `retweeted_status_timestamp` are objects
+- convert them to `datetime64[ns]`
+
+#### 3. `twitter_enhanced_df` table: `in_reply_to_user_id` and `in_reply_to_status_id` are floats not ints
+- convert them to `int64`
+
+#### 4. `twitter_enhanced_df` table: `retweeted_status_id` and `retweeted_status_user_id` are floats not ints
+- convert them to `int64`
+
+#### 5. `twitter_enhanced_df` table: some indicies have unreal ratings
+- drop them
+
+#### 6. `tweet_json_df` table: `geo`, `place`, `contributors` and `coordinates` columns are just not present
+- drop the since there is no need for them
+
+#### 7. `tweet_json_df` table: `quoted_status_id_str` is a float64
+- convert it into an `int64`
+
+#### 8. `tweet_json_df` table: `id_str` is an int64
+- convert it to an object
+
+#### 9. `tweet_json_df` table: `possibly_sensitive` is either a 0.0 or Nan
+- drop it since there is no use for it
+                        </code>
+                    </pre>
+                    <li>Tidiness</li>
+                    <pre>
+                        <code>
+#### 1. `twitter_enhanced_df` table: `doggo`, `floofer`, `pupper` and `puppo` could have been in a nullable `nickname` column
+- make a nickname column and remove the other columns
+
+#### 2. `tweet_json_df` table: it's just too big and contains a lot of unessacry data
+- remove all unessacry data
+                        </code>
+                    </pre>
+                </ul>
+            </p>
+        </section>
+
+        <section id="cleaning">
+            <h2>Cleaning</h2>
+            <p>
+                After I adressed the issues I started defining, coding and testing prosses.<br>
+                After I was done testing, I figured out that there was more problems, so I defined the and started working<br>
+                I had to merge the data-frames so when I remove a bad tweet, I can remove it from all tables.<br>
+            </p>
+        </section>
+
+        <section id="storing">
+            <h2>Storing</h2>
+            <p>
+                I decided to store The data into an <code>SQLite</code> database since I am fimiliar with it<br>
+                How the storing workflow went <ul>
+                    <li>Dividing the merged data-frame into tables[<i>i.e data-frames</i>]</li>
+                    <li>Connecting to <code>db.sqlite3</code> database</li>
+                    <li>saving the data-frames</li>
+                    <li>closing the connection</li>
+                </ul>
+            </p>
+        </section>
+
+    </article>
+    <footer>
+        <p>© 2024 Report Webpage</p>
+    </footer>
+</body>
+</html>
